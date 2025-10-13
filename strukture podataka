@@ -1,0 +1,53 @@
+#include <iostream>
+#include <vector>
+#include <string>   
+#include <fstream>
+#include <iomanip>
+using namespace std;
+
+struct Student {
+    string ime;
+    string prezime;
+    double bodovi;
+};
+
+int main(){
+    string imeDatoteke;
+    double max_bodova;
+
+    cout << "Unesite ime datoteke: ";
+    cin >> imeDatoteke;     
+
+    cout << "Unesite maksimalan broj bodova: ";
+    cin >> max_bodova;      
+
+    ifstream datoteka(imeDatoteke);
+    if (!datoteka.is_open()) {
+        cerr << "Greska pri otvaranju datoteke!" << endl;
+        return 1;
+    }
+
+    vector<Student> studenti;
+    Student s;
+
+    while (datoteka >> s.ime >> s.prezime >> s.bodovi) {
+        studenti.push_back(s);
+    }
+
+    datoteka.close();
+
+    cout<<left<<setw(15)<<"Ime"
+    <<setw(15)<<"Prezime"
+    <<setw(12)<<"Bodovi"
+    <<setw(15)<<"Relativno (%)"<<endl;
+    cout<<string(55,'-')<<endl;
+    for (const auto& student : studenti) {
+        double relativno = (student.bodovi / max_bodova) * 100;
+        cout<<left<<setw(15)<<student.ime
+        <<setw(15)<<student.prezime
+        <<setw(12)<<fixed<<setprecision(2)<<student.bodovi
+        <<setw(15)<<fixed<<setprecision(2)<<relativno<<endl;
+    }
+    cout<<"\nukupno studenata: "<<studenti.size()<<endl;
+    return 0;
+}
