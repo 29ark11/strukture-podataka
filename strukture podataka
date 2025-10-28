@@ -1,53 +1,77 @@
-#include <iostream>
-#include <vector>
-#include <string>   
-#include <fstream>
-#include <iomanip>
-using namespace std;
+#define _CRT_SECURE_NO_WARNINGS
 
-struct Student {
-    string ime;
-    string prezime;
-    double bodovi;
-};
+#include <stdio.h>
+#include <stdlib.h>
 
-int main(){
-    string imeDatoteke;
-    double max_bodova;
+#define MAX_SIZE 50
+#define MAX_LINE 1024
+#define MAX_POINTS 15
+#define EXIT_SUCCESS 0
+#define FILE_ERROR_OPEN -1
+#define MALLOC_ERROR -2
+#define SCANF_ERROR -3
 
-    cout << "Unesite ime datoteke: ";
-    cin >> imeDatoteke;     
+typedef struct _student {
+	char name[MAX_SIZE];
+	char surname[MAX_SIZE];
+	double points;
+} Student;
 
-    cout << "Unesite maksimalan broj bodova: ";
-    cin >> max_bodova;      
+int readNoRowsInFile()
+{
+	int counter = 0;
+	char buffer[MAX_LINE] = { 0 };
 
-    ifstream datoteka(imeDatoteke);
-    if (!datoteka.is_open()) {
-        cerr << "Greska pri otvaranju datoteke!" << endl;
-        return 1;
-    }
+	FILE* filePointer = NULL;
+	filePointer = fopen("students.txt", "r");
+	if (!filePointer) {
+		printf("File not opened!\n");
+		return FILE_ERROR_OPEN;
+	}
 
-    vector<Student> studenti;
-    Student s;
+	while (!feof(filePointer)) {
+		fgets(buffer, MAX_LINE, filePointer);
+		counter++;
+	}
 
-    while (datoteka >> s.ime >> s.prezime >> s.bodovi) {
-        studenti.push_back(s);
-    }
+	fclose(filePointer);
 
-    datoteka.close();
+	return counter;
+}
 
-    cout<<left<<setw(15)<<"Ime"
-    <<setw(15)<<"Prezime"
-    <<setw(12)<<"Bodovi"
-    <<setw(15)<<"Relativno (%)"<<endl;
-    cout<<string(55,'-')<<endl;
-    for (const auto& student : studenti) {
-        double relativno = (student.bodovi / max_bodova) * 100;
-        cout<<left<<setw(15)<<student.ime
-        <<setw(15)<<student.prezime
-        <<setw(12)<<fixed<<setprecision(2)<<student.bodovi
-        <<setw(15)<<fixed<<setprecision(2)<<relativno<<endl;
-    }
-    cout<<"\nukupno studenata: "<<studenti.size()<<endl;
-    return 0;
+int main()
+{
+	int i = 0, noRows = 0;
+	noRows = readNoRowsInFile();
+
+	if (noRows > 0)
+	{
+		FILE* filePointer = NULL;
+		filePointer = fopen("students.txt", "r");
+		if (!filePointer) {
+			printf("File not opened!\n");
+			return FILE_ERROR_OPEN;
+		}
+
+		Student* stud = NULL;
+		stud = (Student*)malloc(noRows * sizeof(Student));
+		if (stud == NULL) {
+			printf("Malloc error!\n");
+			return MALLOC_ERROR;
+		}
+
+		for (i = 0; i < noRows; i++) {
+			if (fscanf(filePointer, " %s %s %lf ", stud[i].name, stud[i].surname, &stud[i].points) != 3)
+				return SCANF_ERROR;
+		}
+
+		for (i = 0; i < noRows; i++) {
+			printf("%s %s %.2lf %.2lf\%\n", stud[i].name, stud[i].surname, stud[i].points, stud[i].points / MAX_POINTS * 100);
+		}
+
+		fclose(filePointer);
+		free(stud);
+	}
+
+	return EXIT_SUCCESS;
 }
