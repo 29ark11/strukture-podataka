@@ -1,77 +1,92 @@
-#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS  
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdio.h>   
+#include <stdlib.h>  
 
-#define MAX_SIZE 50
-#define MAX_LINE 1024
-#define MAX_POINTS 15
-#define EXIT_SUCCESS 0
-#define FILE_ERROR_OPEN -1
-#define MALLOC_ERROR -2
-#define SCANF_ERROR -3
+
+#define MAX_SIZE 50      // Maksimalna duljina imena i prezimena
+#define MAX_LINE 1024    // Maksimalna duljina retka u datoteci
+#define MAX_POINTS 15    // Maksimalan broj mogućih bodova
+#define EXIT_SUCCESS 0   // Kod uspješnog izlaza iz programa
+#define FILE_ERROR_OPEN -1  // Kod pogreške ako se datoteka ne može otvoriti
+#define MALLOC_ERROR -2     // Kod pogreške ako memorijska alokacija ne uspije
+#define SCANF_ERROR -3      // Kod pogreške ako fscanf ne pročita očekivane podatke
+
 
 typedef struct _student {
-	char name[MAX_SIZE];
-	char surname[MAX_SIZE];
-	double points;
+    char name[MAX_SIZE];     // Polje za ime studenta
+    char surname[MAX_SIZE];  // Polje za prezime studenta
+    double points;           // Bodovi koje je student ostvario
 } Student;
 
+// Funkcija za brojanje redaka u datoteci (broj studenata)
 int readNoRowsInFile()
 {
-	int counter = 0;
-	char buffer[MAX_LINE] = { 0 };
+    int counter = 0;                // Brojač redaka
+    char buffer[MAX_LINE] = { 0 };  // Privremeni spremnik za čitanje redaka
 
-	FILE* filePointer = NULL;
-	filePointer = fopen("students.txt", "r");
-	if (!filePointer) {
-		printf("File not opened!\n");
-		return FILE_ERROR_OPEN;
-	}
+    FILE* filePointer = NULL;       // Pokazivač na datoteku
+    filePointer = fopen("students.txt", "r");  // Otvaranje datoteke u načinu čitanja
+    if (!filePointer) {             // Provjera je li datoteka uspješno otvorena
+        printf("File not opened!\n");
+        return FILE_ERROR_OPEN;
+    }
 
-	while (!feof(filePointer)) {
-		fgets(buffer, MAX_LINE, filePointer);
-		counter++;
-	}
+    // Čitanje dok se ne dođe do kraja datoteke
+    while (!feof(filePointer)) {
+        fgets(buffer, MAX_LINE, filePointer);  // Čitanje jednog retka
+        counter++;                             // Povećaj brojač redaka
+    }
 
-	fclose(filePointer);
+    fclose(filePointer);  // Zatvori datoteku
 
-	return counter;
+    return counter;       // Vrati broj pročitanih redaka
 }
 
 int main()
 {
-	int i = 0, noRows = 0;
-	noRows = readNoRowsInFile();
+    int i = 0, noRows = 0;          // Brojači
+    noRows = readNoRowsInFile();    // Poziv funkcije koja vraća broj studenata u datoteci
 
-	if (noRows > 0)
-	{
-		FILE* filePointer = NULL;
-		filePointer = fopen("students.txt", "r");
-		if (!filePointer) {
-			printf("File not opened!\n");
-			return FILE_ERROR_OPEN;
-		}
+    if (noRows > 0)                 // Provjera ima li redaka u datoteci
+    {
+        FILE* filePointer = NULL;
+        filePointer = fopen("students.txt", "r");  // Ponovno otvaranje datoteke za čitanje
+        if (!filePointer) {
+            printf("File not opened!\n");
+            return FILE_ERROR_OPEN;
+        }
 
-		Student* stud = NULL;
-		stud = (Student*)malloc(noRows * sizeof(Student));
-		if (stud == NULL) {
-			printf("Malloc error!\n");
-			return MALLOC_ERROR;
-		}
+        Student* stud = NULL;   // Pokazivač na prvi element dinamički alociranog niza studenata
+        stud = (Student*)malloc(noRows * sizeof(Student));  // Alokacija memorije za sve studente
 
-		for (i = 0; i < noRows; i++) {
-			if (fscanf(filePointer, " %s %s %lf ", stud[i].name, stud[i].surname, &stud[i].points) != 3)
-				return SCANF_ERROR;
-		}
+        if (stud == NULL) {     // Provjera je li alokacija uspjela
+            printf("Malloc error!\n");
+            return MALLOC_ERROR;
+        }
 
-		for (i = 0; i < noRows; i++) {
-			printf("%s %s %.2lf %.2lf\%\n", stud[i].name, stud[i].surname, stud[i].points, stud[i].points / MAX_POINTS * 100);
-		}
+        // Učitavanje svih studenata iz datoteke
+        for (i = 0; i < noRows; i++) {
+            // fscanf čita ime, prezime i bodove iz svakog retka
+            // Ako ne pročita točno 3 elementa, prijavi pogrešku
+            if (fscanf(filePointer, " %s %s %lf ", stud[i].name, stud[i].surname, &stud[i].points) != 3)
+                return SCANF_ERROR;
+        }
 
-		fclose(filePointer);
-		free(stud);
-	}
+        // Ispis podataka o studentima
+        for (i = 0; i < noRows; i++) {
+            // Ispisuje ime, prezime, broj bodova i postotak uspješnosti
+            printf("%s %s %.2lf %.2lf%%\n",
+                stud[i].name,
+                stud[i].surname,
+                stud[i].points,
+                stud[i].points / MAX_POINTS * 100);
+        }
 
-	return EXIT_SUCCESS;
+        fclose(filePointer);  
+        free(stud);          
+    }
+
+    return EXIT_SUCCESS;  
 }
+
