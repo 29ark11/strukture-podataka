@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS   // Omogućuje korištenje fopen, scanf itd. bez upozorenja (MSVC)
+#define _CRT_SECURE_NO_WARNINGS   
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -153,3 +153,4 @@ int deleteTree(Position root)
 
 	return EXIT_SUCCESS;
 }
+
